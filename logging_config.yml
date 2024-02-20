@@ -1,0 +1,43 @@
+# logging_config.yml
+version: 1
+disable_existing_loggers: false
+formatters:
+  simple:
+    format: '[%(levelname)s] %(message)s'
+  detailed:
+    format: '%(asctime)s [%(levelname)s] %(name)s %(funcName)s : %(message)s'
+  debug:
+    format: '%(asctime)s [%(levelname)s] %(name)s:%(lineno)s %(funcName)s : %(message)s'
+handlers:
+  consoleHandler:
+    class: logging.StreamHandler
+    formatter: simple
+    # formatter: debug
+    stream: ext://sys.stdout
+  # fileHandler:
+  #   class: logging.FileHandler
+  #   filename: /dev/null # to be replaced if you want to save file
+  #   formatter: simple
+  rich:
+    class: rich.logging.RichHandler
+    rich_tracebacks: True
+loggers:
+  __main__:
+    handlers:
+    - rich # Rich output; You need to run 'conda install rich' in advance.
+    # - consoleHandler
+    # - fileHandler
+    propagate: false
+  lower.sub:
+    handlers:
+    - consoleHandler
+    # - fileHandler
+    propagate: false
+  same_hierarchy:
+    handlers:
+    - consoleHandler
+    # - fileHandler
+    propagate: false
+root:
+  level: INFO
+  # level: DEBUG
