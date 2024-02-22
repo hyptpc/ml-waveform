@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import argparse
 import logging
 import logging.config
 import numpy as np
@@ -15,8 +16,8 @@ top_dir = os.path.dirname(os.path.abspath(__file__))
 logger = logging.getLogger(__name__)
 
 #______________________________________________________________________________
-def run(filename, spec_transform):
-  waveform, sample_rate = torchaudio.load(filename)
+def run(file_path, spec_transform):
+  waveform, sample_rate = torchaudio.load(file_path)
   waveform = waveform[0] # show only first channel
   logger.info(f'Shape of waveform [channel, time]: {waveform.size()}')
   logger.info(f'Sample rate of waveform: {sample_rate}')
@@ -33,7 +34,7 @@ def run(filename, spec_transform):
   plt.xlabel('Sample')
   plt.ylabel('Amplitude')
   plt.subplot(2, 1, 2)
-  plt.imshow(spec.numpy(), cmap='viridis', aspect='auto', origin='lower')
+  plt.imshow(spec.numpy(), aspect='auto', origin='lower')
   plt.title('Spectrogram')
   plt.xlabel('Time')
   plt.ylabel('Frequency Bin')
@@ -43,8 +44,12 @@ def run(filename, spec_transform):
 
 #______________________________________________________________________________
 if __name__ == '__main__':
+  parser = argparse.ArgumentParser()
+  parser.add_argument('file_path',
+                      help=('file path of input wav'))
+  parsed, unpased = parser.parse_known_args()
   log_conf = os.path.join(top_dir, 'logging_config.yml')
   with open(log_conf, 'r') as f:
     logging.config.dictConfig(yaml.safe_load(f))
-  run(filename = 'under_transition.wav',
+  run(file_path = parsed.file_path,
       spec_transform=transforms.Spectrogram())
