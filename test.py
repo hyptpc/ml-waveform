@@ -37,9 +37,10 @@ def run(file_path, spec_transform):
   plt.imshow(spec.numpy(), aspect='auto', origin='lower')
   plt.title('Spectrogram')
   plt.xlabel('Time')
-  plt.ylabel('Frequency Bin')
+  plt.ylabel('Frequency')
   plt.colorbar(format='%+2.0f dB')
   plt.tight_layout()
+  plt.savefig('test.png')
   plt.show()
 
 #______________________________________________________________________________
