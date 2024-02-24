@@ -18,9 +18,9 @@ logger = logging.getLogger(__name__)
 #______________________________________________________________________________
 def run(file_path, spec_transform):
   waveform, sample_rate = torchaudio.load(file_path)
-  waveform = waveform[0] # show only first channel
   logger.info(f'Shape of waveform [channel, time]: {waveform.size()}')
   logger.info(f'Sample rate of waveform: {sample_rate}')
+  waveform = waveform[0] # show only first channel
   data = waveform.t().numpy()
   spec = spec_transform(waveform).log2()
   logger.info(f'Shape of spectrogram: {spec.size()}')
@@ -40,7 +40,7 @@ def run(file_path, spec_transform):
   plt.ylabel('Frequency')
   plt.colorbar(format='%+2.0f dB')
   plt.tight_layout()
-  plt.savefig('test.png')
+  plt.savefig('spectrogram.png')
   plt.show()
 
 #______________________________________________________________________________
@@ -54,3 +54,4 @@ if __name__ == '__main__':
     logging.config.dictConfig(yaml.safe_load(f))
   run(file_path = parsed.file_path,
       spec_transform=transforms.Spectrogram())
+      # spec_transform=transforms.Spectrogram(n_fft=20, hop_length=5))
