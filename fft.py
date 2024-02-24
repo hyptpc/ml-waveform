@@ -20,16 +20,25 @@ def run(file_path):
   logger.info(f'Shape of waveform [channel, time]: {waveform.size()}')
   logger.info(f'Sample rate of waveform: {sample_rate}')
   waveform = waveform[0] # first channel
+  waveform = (waveform - waveform.mean())/waveform.std() # normalize
   fft_result = torch.fft.fft(waveform)
   freq_axis = torch.fft.fftfreq(waveform.size(0), d=1./sample_rate)
   logger.debug(f'fft result: {fft_result}')
   logger.debug(f'fft axis: {freq_axis}')
   positive_freq_mask = (freq_axis >= 0) # mask negative freq
+  plt.figure(figsize=(12, 6))
+  plt.subplot(2, 1, 1)
+  plt.plot(waveform.t().numpy())
+  plt.title('waveform')
+  plt.xlabel('Sample')
+  plt.ylabel('Amplitude')
+  plt.subplot(2, 1, 2)
   plt.plot(freq_axis[positive_freq_mask].numpy(),
            torch.abs(fft_result[positive_freq_mask]).numpy())
   plt.title(f'FFT of WAV Signal : {file_path}')
   plt.xlabel('Frequency (Hz)')
   plt.ylabel('Amplitude')
+  plt.tight_layout()
   plt.savefig('fft.png')
   plt.show()
 
