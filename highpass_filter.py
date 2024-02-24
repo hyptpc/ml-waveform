@@ -20,10 +20,10 @@ def run(file_path, cutoff_frequency):
   waveform, sample_rate = torchaudio.load(file_path)
   logger.info(f'Shape of waveform [channel, time]: {waveform.size()}')
   logger.info(f'Sample rate of waveform: {sample_rate}')
-  logger.info(f'Cutoff frequency for lowpass filter: {cutoff_frequency}')
+  logger.info(f'Cutoff frequency for highpass filter: {cutoff_frequency}')
   waveform = waveform[0] # show only first channel
   waveform = (waveform - waveform.mean()) #/waveform.std() # normalize
-  filtered_waveform = torchaudio.functional.lowpass_biquad(
+  filtered_waveform = torchaudio.functional.highpass_biquad(
     waveform=waveform, sample_rate=sample_rate, cutoff_freq=cutoff_frequency)
   plt.figure(figsize=(12, 6))
   plt.plot(waveform.t().numpy(), c='b', label='raw')
@@ -33,7 +33,7 @@ def run(file_path, cutoff_frequency):
   plt.xlabel('Sample')
   plt.ylabel('Amplitude')
   plt.legend()
-  plt.savefig('lowpass_filter.png')
+  plt.savefig('highpass_filter.png')
   plt.show()
 
 #______________________________________________________________________________
