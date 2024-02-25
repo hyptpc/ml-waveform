@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 
+'''
+Load wav file and do fft.
+'''
+
 import argparse
 import logging
 import logging.config
-import numpy as np
 import matplotlib.pyplot as plt
 import os
 import yaml
@@ -16,11 +19,12 @@ logger = logging.getLogger(__name__)
 
 #______________________________________________________________________________
 def run(file_path):
+  ''' run '''
   waveform, sample_rate = torchaudio.load(file_path)
   logger.info(f'Shape of waveform [channel, time]: {waveform.size()}')
   logger.info(f'Sample rate of waveform: {sample_rate}')
   waveform = waveform[0] # first channel
-  waveform = (waveform - waveform.mean())/waveform.std() # normalize
+  waveform = (waveform - waveform.mean()) #/waveform.std() # normalize
   fft_result = torch.fft.fft(waveform)
   freq_axis = torch.fft.fftfreq(waveform.size(0), d=1./sample_rate)
   logger.debug(f'fft result: {fft_result}')
@@ -51,4 +55,4 @@ if __name__ == '__main__':
   log_conf = os.path.join(top_dir, 'logging_config.yml')
   with open(log_conf, 'r') as f:
     logging.config.dictConfig(yaml.safe_load(f))
-  run(file_path = parsed.file_path)
+  run(file_path=parsed.file_path)

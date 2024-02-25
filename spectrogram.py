@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 
+'''
+Load wav file and display spectrogram
+'''
+
 import argparse
 import logging
 import logging.config
-import numpy as np
 import matplotlib.pyplot as plt
 import os
 import yaml
@@ -17,6 +20,7 @@ logger = logging.getLogger(__name__)
 
 #______________________________________________________________________________
 def run(file_path, spec_transform):
+  ''' run '''
   waveform, sample_rate = torchaudio.load(file_path)
   logger.info(f'Shape of waveform [channel, time]: {waveform.size()}')
   logger.info(f'Sample rate of waveform: {sample_rate}')
@@ -26,7 +30,6 @@ def run(file_path, spec_transform):
   logger.info(f'Shape of spectrogram: {spec.size()}')
   logger.debug(waveform.t().numpy())
   logger.debug(spec)
-
   plt.figure(figsize=(12, 6))
   plt.subplot(2, 1, 1)
   plt.plot(waveform.t().numpy())
@@ -47,11 +50,15 @@ def run(file_path, spec_transform):
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
   parser.add_argument('file_path',
-                      help=('file path of input wav'))
+                      help='file path of input wav')
+  parser.add_argument('n_fft', nargs='?', type=int, default=30,
+                      help='size of fft')
+  parser.add_argument('hop_length', nargs='?', type=int, default=10,
+                      help='number of sample between frames')
   parsed, unpased = parser.parse_known_args()
   log_conf = os.path.join(top_dir, 'logging_config.yml')
   with open(log_conf, 'r') as f:
     logging.config.dictConfig(yaml.safe_load(f))
   run(file_path = parsed.file_path,
-      spec_transform=transforms.Spectrogram())
-      # spec_transform=transforms.Spectrogram(n_fft=20, hop_length=5))
+      spec_transform=transforms.Spectrogram(n_fft=parsed.n_fft,
+                                            hop_length=parsed.hop_length))
