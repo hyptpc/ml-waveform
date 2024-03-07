@@ -10,6 +10,7 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.optim import lr_scheduler
 from torch.utils.data import DataLoader, Dataset
+from torchinfo import summary
 from sklearn.model_selection import train_test_split
 
 #______________________________________________________________________________
@@ -59,11 +60,14 @@ if __name__ == '__main__':
   dataset = AmplitudeTimeDataset(signals, labels)
   train_dataset, test_dataset = train_test_split(
     dataset, test_size=0.2, random_state=42)
-  train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
-  test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
+  batch_size = 32
+  train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+  test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
   # setup
   device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
   model = AmplitudeTimeRNN().to(device)
+  print(model)
+  summary(model, input_size=(batch_size, 5000))
   criterion = nn.MSELoss()
   optimizer = optim.Adam(model.parameters(), lr=0.001)
   step_size = 20
@@ -107,4 +111,5 @@ if __name__ == '__main__':
   plt.ylabel("loss")
   plt.legend()
   plt.grid()
+  plt.savefig('example-rnn.png')
   plt.show()
