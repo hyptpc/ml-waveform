@@ -50,11 +50,11 @@ def fft(waveform, sample_rate, show=True, outfig='fft.png'):
 #______________________________________________________________________________
 def run(file_path):
   ''' run '''
-  _, input_ext = os.path.splitext(parsed.file_path)
+  _, input_ext = os.path.splitext(file_path)
   if input_ext == '.wav':
-    run_wav(parsed.file_path)
+    run_wav(file_path)
   elif input_ext == '.root':
-    run_root(parsed.file_path)
+    run_root(file_path)
   else:
     logger.error(f'unknown file type: {file_path}')
 
