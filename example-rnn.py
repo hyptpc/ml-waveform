@@ -44,14 +44,13 @@ class AmplitudeTimeDataset(Dataset):
 class AmplitudeTimeRNN(nn.Module):
   ''' RNN model '''
   def __init__(self):
-    super(AmplitudeTimeRNN, self).__init__()
+    super().__init__()
     self.rnn = nn.RNN(input_size=5000, hidden_size=64, batch_first=True)
     self.fc = nn.Linear(64, 2)  # 2 outputs, amplitude/time
 
   def forward(self, x):
-    _, hn = self.rnn(x)
-    output = self.fc(hn.squeeze(0))
-    return output
+    x, h = self.rnn(x)
+    return self.fc(x)
 
 #______________________________________________________________________________
 if __name__ == '__main__':
@@ -67,8 +66,8 @@ if __name__ == '__main__':
   model = AmplitudeTimeRNN().to(device)
   criterion = nn.MSELoss()
   optimizer = optim.Adam(model.parameters(), lr=0.001)
-  step_size = 10
-  gamma = 0.9
+  step_size = 20
+  gamma = 0.5
   scheduler = lr_scheduler.StepLR(optimizer, step_size=step_size, gamma=gamma)
   # start training
   train_loss_list = []
@@ -98,7 +97,7 @@ if __name__ == '__main__':
         test_loss += criterion(outputs, labels).item()
     test_loss = test_loss / len(test_loader)
     test_loss_list.append(test_loss)
-    print(f"Epoch {epoch+1}/{num_epochs}, Loss: {test_loss}")
+    print(f"epoch {epoch+1}/{num_epochs}, Loss: {test_loss}")
   print("Training finished!")
   plt.plot(range(len(train_loss_list)), train_loss_list,
            c='b', label='train loss')
