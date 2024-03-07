@@ -64,7 +64,7 @@ if __name__ == '__main__':
   train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
   test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
   # setup
-  device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+  device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
   model = AmplitudeTimeRNN().to(device)
   print(model)
   summary(model, input_size=(batch_size, 5000))
@@ -101,14 +101,14 @@ if __name__ == '__main__':
         test_loss += criterion(outputs, labels).item()
     test_loss = test_loss / len(test_loader)
     test_loss_list.append(test_loss)
-    print(f"epoch {epoch+1}/{num_epochs}, Loss: {test_loss}")
-  print("Training finished!")
+    print(f'epoch {epoch+1}/{num_epochs}, loss: {test_loss}')
+  print('done')
   plt.plot(range(len(train_loss_list)), train_loss_list,
            c='b', label='train loss')
   plt.plot(range(len(test_loss_list)), test_loss_list,
            c='r', label='test loss')
-  plt.xlabel("epoch")
-  plt.ylabel("loss")
+  plt.xlabel('epoch')
+  plt.ylabel('loss')
   plt.legend()
   plt.grid()
   plt.savefig('example-rnn.png')
