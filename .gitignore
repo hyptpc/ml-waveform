@@ -1,5 +1,6 @@
 __pycache__
 *.png
+*.pdf
 *.wav
 *.root
 !under_transition.wav
