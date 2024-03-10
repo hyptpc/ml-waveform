@@ -5,10 +5,12 @@ Load wav/root file and do fft.
 '''
 
 import argparse
+from lauda import stopwatch
 import logging
 import logging.config
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
+from memory_profiler import profile
 import os
 import yaml
 
@@ -20,6 +22,8 @@ top_dir = os.path.dirname(os.path.abspath(__file__))
 logger = logging.getLogger(__name__)
 
 #______________________________________________________________________________
+@stopwatch
+@profile
 def fft(waveform, sample_rate, show=True, outfig='fft.png'):
   ''' fft '''
   fft_result = torch.fft.fft(waveform)
@@ -76,7 +80,7 @@ def run_root(file_path, sample_rate=12500000):
   rwavTpc = tree['rwavTpc']
   pdf = PdfPages('fft.pdf')
   for i in range(len(tree)):
-    logger.info(f'run{run_number:05d} ev{evnum[i]:06d} {len(rpadTpc[i])} {len(rwavTpc[i])}')
+    logger.debug(f'run{run_number:05d} ev{evnum[i]:06d} {len(rpadTpc[i])}')
     for j in range(len(rpadTpc[i])):
       logger.info(f'{rpadTpc[i][j]}, {rwavTpc[i][j]}')
       waveform = torch.Tensor(rwavTpc[i][j]) / (2**12)
