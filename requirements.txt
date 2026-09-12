@@ -1,0 +1,33 @@
+# Runtime dependencies for ml-waveform.
+# Install with: pip install -r requirements.txt
+#
+# Verified on macOS arm64 with Python 3.14.6. The pins below are for
+# that platform; revisit them elsewhere, in particular for CUDA.
+
+# PyTorch stack. Keep the three versions in lockstep: torchaudio and
+# torchvision are built against a specific torch ABI.
+torch==2.11.0
+torchaudio==2.11.0
+torchvision==0.26.0
+torchinfo>=1.8.0
+
+# Numerics and plotting
+numpy>=2.0
+scipy>=1.11
+matplotlib>=3.9
+scikit-learn>=1.5
+
+# wav I/O without a system FFmpeg (torchaudio 2.11 needs torchcodec)
+soundfile>=0.12
+
+# ROOT file I/O in pure Python (CERN ROOT is not required)
+uproot>=5.6
+awkward>=2.7
+
+# Configuration files and console logging
+PyYAML>=6.0
+rich>=13.0
+
+# Profiling helpers used by fft.py and test-uproot.py
+lauda>=1.2.0
+memory-profiler>=0.61

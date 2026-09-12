@@ -39,5 +39,9 @@ loggers:
     # - fileHandler
     propagate: false
 root:
+  # Without a handler here every module logger except __main__ is
+  # silently dropped.
+  handlers:
+  - consoleHandler
   level: INFO
   # level: DEBUG

@@ -7,3 +7,10 @@ __pycache__
 *.wav
 *.root
 !under_transition.wav
+.venv
+/data/
+*.npz
+refs/
+private/
+.python-version
+wav-legacy.tar.gz
