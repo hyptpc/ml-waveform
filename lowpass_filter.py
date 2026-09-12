@@ -11,9 +11,9 @@ import matplotlib.pyplot as plt
 import os
 import yaml
 
-import torch
 import torchaudio
-import torchaudio.transforms as transforms
+
+import audio_io
 
 top_dir = os.path.dirname(os.path.abspath(__file__))
 logger = logging.getLogger(__name__)
@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 #______________________________________________________________________________
 def run(file_path, cutoff_frequency):
   ''' run '''
-  waveform, sample_rate = torchaudio.load(file_path)
+  waveform, sample_rate = audio_io.load(file_path)
   logger.info(f'Shape of waveform [channel, time]: {waveform.size()}')
   logger.info(f'Sample rate of waveform: {sample_rate}')
   logger.info(f'Cutoff frequency for lowpass filter: {cutoff_frequency}')

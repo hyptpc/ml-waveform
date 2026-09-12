@@ -1,67 +1,66 @@
 #!/usr/bin/env python3
 
 '''
-read root file and convert to wav.
+Export TPC waveforms of a root file as wav files.
+
+This is an escape hatch for external audio tools only; the training
+pipeline reads root files directly, see tpc.py. Reading goes through
+uproot, so CERN ROOT is not required.
 '''
 
 import argparse
 import logging
 import logging.config
 import os
+
 import yaml
 
-import ROOT
-
-import torch
-import torchaudio
+import audio_io
+import tpc
 
 top_dir = os.path.dirname(os.path.abspath(__file__))
 logger = logging.getLogger(__name__)
 
-sample_rate = 12500000 # 12.5 MHz
-bits_per_sample = 16 # signed 16 bit
-
 #______________________________________________________________________________
-def run(input_path):
-  ''' run process '''
-  logger.info('start run')
-  ROOT.gROOT.Reset()
-  ROOT.gROOT.SetBatch()
-  output_dir = os.path.dirname(input_path)
-  f = ROOT.TFile.Open(input_path)
-  if f == None or not f.IsOpen():
-    logger.warning(f'failed to open {input_path}')
+def run(input_path, output_dir=None, max_events=tpc.ALL_EVENTS):
+  ''' write one wav file per pad hit '''
+  tree = tpc.read_tree(input_path, max_events)
+  if tree is None:
     return
-  logger.info(f'open {input_path}')
-  run_number = int(os.path.basename(input_path)[3:8])
-  tree = f.Get('tpc')
-  for event in tree:
-    logger.info(f'{event.rpadTpc.size()} {event.rwavTpc.size()}')
-    for i in range(event.rpadTpc.size()):
+  if output_dir is None:
+    output_dir = os.path.dirname(os.path.abspath(input_path))
+  os.makedirs(output_dir, exist_ok=True)
+  n_written = 0
+  for i in range(len(tree)):
+    run_number = int(tree['runnum'][i])
+    evnum = int(tree['evnum'][i])
+    for j in range(len(tree['rpadTpc'][i])):
+      pad = int(tree['rpadTpc'][i][j])
       output_file = os.path.join(
         output_dir,
-        f'run{run_number:05.0f}_ev{event.evnum:08d}_' +
-        f'pad{event.rpadTpc[i]:04d}.wav')
-      w = torch.Tensor(event.rwavTpc[i]) / (2**12)
-      w = w.reshape(1, w.size(-1)) # [channel, time]
-      logger.debug(f'waveform : {w.size()}\n{w}')
-      logger.info(f'write {output_file}')
-      torchaudio.save(output_file, src=w,
-                      sample_rate=sample_rate,
-                      bits_per_sample=bits_per_sample)
-  logger.info('done')
+        f'run{run_number:05d}_ev{evnum:08d}_pad{pad:04d}.wav')
+      # Keep the raw scaling: the baseline is subtracted at training
+      # time, and doing it here would be lost to the wav quantization.
+      waveform = tpc.normalize(tree['rwavTpc'][i][j],
+                               subtract_baseline=False)
+      logger.debug(f'write {output_file}')
+      audio_io.save(output_file, waveform.reshape(1, -1),
+                    tpc.SAMPLE_RATE)
+      n_written += 1
+  logger.info(f'wrote {n_written} wav files to {output_dir}')
 
 #______________________________________________________________________________
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
   parser.add_argument('input_path',
                       help='input root file')
-  parsed, unpased = parser.parse_known_args()
+  parser.add_argument('--output-dir', default=None,
+                      help='output directory (default: next to input)')
+  parser.add_argument('--max-events', type=int, default=tpc.ALL_EVENTS,
+                      help='number of events to read (-1 for all)')
+  parsed, unparsed = parser.parse_known_args()
   log_conf = os.path.join(top_dir, 'logging_config.yml')
   with open(log_conf, 'r') as f:
     logging.config.dictConfig(yaml.safe_load(f))
-  if os.path.isfile(parsed.input_path):
-    run(parsed.input_path)
-  else:
-    logger.error('cannot find valid input path')
-    exit(1)
+  run(input_path=parsed.input_path, output_dir=parsed.output_dir,
+      max_events=parsed.max_events)
